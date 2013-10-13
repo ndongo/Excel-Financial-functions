@@ -34,15 +34,15 @@ public class Simulation {
 	private static final double FINANCIAL_PRECISION = 0.00000001; //1.0e-08
 	private static final double FINANCIAL_MAX_ITERATIONS = 128;
 	/**
-	 * PV
+	 * PV  Initial Capital
 	 */
 	public double _pv; 
 	/**
-	 * PMT
+	 * PMT  Monthly Savings
 	 */
 	public double _pmt;
 	/**
-	 * NPR
+	 * NPR   Offering Period
 	 */
 	public float _npr; 
 	/**
@@ -50,9 +50,9 @@ public class Simulation {
 	 */
 	public double _rate;
 	/**
-	 * FV
+	 * FV Final Capital
 	 */
-	public double _fv; 
+	public double _fv;
 	
 	/**
 	 * Type (0 or 1)
@@ -70,8 +70,8 @@ public class Simulation {
 	
 	/**
 	 * Gets the missing field for the calculation of the given field
-	 * @param initialCapital2
-	 * @return
+	 * @param field
+	 * @return  the missing field
 	 */
 	public SimulationField getMissingField(SimulationField field) {
 		switch (field) {
@@ -150,10 +150,7 @@ public class Simulation {
 		}
 	}
 	
-	
-	
-	
-	
+
 	/**
 	 * Calculates the final capital (fv)
 	 * @throws MissingFieldException
@@ -165,8 +162,8 @@ public class Simulation {
 		double effectiveRate = getEffectiveRate();
 		double pow = Math.pow((1 + effectiveRate), (_npr * MONTHS_PER_YEAR));
 		
-		double vf = (double) _pv * pow;
-		double inter = (double) _pmt  * (1 + effectiveRate * _type)* ( (pow - 1) / effectiveRate);
+		double vf =  _pv * pow;
+		double inter =  _pmt  * (1 + effectiveRate * _type)* ( (pow - 1) / effectiveRate);
 		
 		_fv = Utils.round(vf + inter, Utils.PRECISION);// bg.doubleValue();
 	}
@@ -182,7 +179,7 @@ public class Simulation {
 		}
 		
 		double effectiveRate = getEffectiveRate();
-		// pow = (effRate +1)^(npr * MOUNTHS)
+		// pow = (effRate +1)^(npr * MONTHS)
 		//
 		double pow = Math.pow((1 + effectiveRate), (_npr * MONTHS_PER_YEAR));
 		// inter = -pmt *( 1 + effRate * type) * (pow -1)/effRate + fv
@@ -197,12 +194,12 @@ public class Simulation {
 	 * Calculates the monthly savings (pmt)
 	 * @throws MissingFieldException
 	 */
-	public void calculateMounthlySavings() throws MissingFieldException {
+	public void calculateMonthlySavings() throws MissingFieldException {
 		if (isFieldMissing(SimulationField.MONTHLY_SAVINGS)) {
 			throw  new MissingFieldException();
 		}
 		double effectiveRate = getEffectiveRate();
-		// pow = (effRate +1)^(npr * MOUNTHS)
+		// pow = (effRate +1)^(npr * MONTHS)
 		//
 		double pow = Math.pow((1 + effectiveRate), (_npr * MONTHS_PER_YEAR));
 		
@@ -259,11 +256,11 @@ public class Simulation {
 	 * @return the amount of interests
 	 * @throws MissingFieldException
 	 */
-	public double getInterestReceived() throws MissingFieldException{
+	public double getReceivedInterest() throws MissingFieldException{
 		if (isFieldMissing(SimulationField.FINAL_CAPITAL)) {
 			throw  new MissingFieldException();
 		}
-		double value = _fv - getSavingsAccumulated();
+		double value = _fv - getAccumulatedSavings();
 		return Utils.round(value, Utils.PRECISION); 
 	}
 	
@@ -272,7 +269,7 @@ public class Simulation {
 	 * @return the amount of accumulated savings
 	 * @throws MissingFieldException
 	 */
-	public double getSavingsAccumulated() throws MissingFieldException{
+	public double getAccumulatedSavings() throws MissingFieldException{
 		if (isFieldMissing(SimulationField.INITIAL_CAPITAL)) {
 			throw  new MissingFieldException();
 		}
@@ -290,7 +287,7 @@ public class Simulation {
 
 	/**
 	 * Is there a missing field for the calculation of the given one ?
-	 * @param field
+	 * @param field  field
 	 * @return true if there a missing field, false otherwise
 	 */
 	protected boolean isFieldMissing(SimulationField field) {
@@ -327,25 +324,25 @@ public class Simulation {
 	
 	/**
 	 * Based on http://stackoverflow.com/questions/7064753/problem-with-rate-function
-	 * @param nper
-	 * @param pmt
-	 * @param pv
-	 * @param fv 
-	 * @param type 
+	 * @param npr  NPR
+	 * @param pmt  PMT
+	 * @param pv    PV
+	 * @param fv    FV
+	 * @param type  Type
 	 * @return the rate
 	 */
-	private static double rate(double nper, double pmt, double pv, double fv, int type){
+	private static double rate(double npr, double pmt, double pv, double fv, int type){
 		double rate = 0.1;
-		double y = 0.0;
+		double y;
 		double f = 0.0;
 		if (Math.abs(rate) < FINANCIAL_PRECISION) {
-	        y = pv * (1 + nper * rate) + pmt * (1 + rate  * type) * nper + fv;
+	        y = pv * (1 + npr * rate) + pmt * (1 + rate  * type) * npr + fv;
 	    } else {
-	        f = Math.exp(nper * Math.log(1 + rate));
+	        f = Math.exp(npr * Math.log(1 + rate));
 	        y = pv * f + pmt * (1 / rate + type) * (f - 1) + fv;
 	    }
 		
-		double y0 = pv + pmt * nper + fv;
+		double y0 = pv + pmt * npr + fv;
 	    double y1 = pv * f + pmt * (1 / rate + type) * (f - 1) + fv;
 
 	    // find root by secant method
@@ -358,9 +355,9 @@ public class Simulation {
 			x1 = rate;
 
 			if (Math.abs(rate) < FINANCIAL_PRECISION) {
-	        y = pv * (1 + nper * rate) + pmt * (1 + rate  * type) * nper + fv;
+	            y = pv * (1 + npr * rate) + pmt * (1 + rate  * type) * npr + fv;
 			} else {
-				f = Math.exp(nper * Math.log(1 + rate));
+				f = Math.exp(npr * Math.log(1 + rate));
 				y = pv * f + pmt * (1 / rate + type) * (f - 1) + fv;
 			}
 

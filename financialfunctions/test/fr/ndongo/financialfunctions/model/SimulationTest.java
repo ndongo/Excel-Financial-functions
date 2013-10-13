@@ -2,13 +2,11 @@ package fr.ndongo.financialfunctions.model;
 
 import junit.framework.TestCase;
 
-import org.junit.Test;
-
 import fr.ndongo.financialfunctions.model.Simulation.SimulationField;
 
 public class SimulationTest extends TestCase {
 	
-	@Test
+
 	public void testCheckMissingField(){
 		Simulation simulation = new Simulation();
 		
@@ -31,7 +29,7 @@ public class SimulationTest extends TestCase {
 		assertFalse(simulation.isFieldMissing(SimulationField.FINAL_CAPITAL));
 	}
 	
-	@Test
+
 	public void testCalculateFinalCapital(){
 		Simulation simulation = new Simulation();
 		simulation._pv = 120000; 
@@ -43,12 +41,11 @@ public class SimulationTest extends TestCase {
 			simulation.calculateFinalCapital();
 			assertEquals(139931.10, simulation._fv);
 		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
+		    fail("Failed to calculate the final capital");
 		}
 	}
 	
-	@Test
+
 	public void testCalculateInitialCapital()
 	{
 		Simulation simulation = new Simulation();
@@ -61,13 +58,12 @@ public class SimulationTest extends TestCase {
 			simulation.calculateInitialCapital();
 			assertEquals(3193.72, simulation._pv);
 		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
+            fail("Failed to calculate the Initial capital");
 		}
 	}
 	
-	@Test
-	public void testCalculateMounthlySavings(){
+
+	public void testCalculateMonthlySavings(){
 		Simulation simulation = new Simulation();
 		simulation._pv = 100000; 
 		simulation._fv = 130000; 
@@ -75,15 +71,14 @@ public class SimulationTest extends TestCase {
 		simulation._rate = 0.04; //4%
 		
 		try {
-			simulation.calculateMounthlySavings();
+			simulation.calculateMonthlySavings();
 			assertEquals(125.94, simulation._pmt);
 		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
+            fail("Failed to calculate the monthly savings ");
 		}
 	}
-	
-	@Test
+
+
 	public void testCalculateOfferingPeriod(){
 		Simulation simulation = new Simulation();
 		simulation._pv = 10000; 
@@ -95,13 +90,12 @@ public class SimulationTest extends TestCase {
 			simulation.calculateOfferingPeriod();
 			assertEquals(28.6f, simulation._npr);
 		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
+            fail("Failed to calculate the offering period ");
 		}
 	}
 	
-	@Test
-	public void testCalulateAverageAnnualRateOfReturn(){
+
+	public void testCalculateAverageAnnualRateOfReturn(){
 		Simulation simulation = new Simulation();
 		simulation._pv = 20000; 
 		simulation._fv = 40000; 
@@ -111,15 +105,13 @@ public class SimulationTest extends TestCase {
 		try {
 			simulation.calculateAverageAnnualRateOfReturn();
 			assertEquals(0.054, simulation._rate);
-			//assertTrue(true);
 		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
+            fail("Failed to calculate the average annual rate of return ");
 		}
 	}
 	
-	@Test
-	public void testGetSavingsAccumulated(){
+
+	public void testGetAccumulatedSavings(){
 		Simulation simulation = new Simulation();
 		simulation._pv = 120000; 
 		simulation._pmt = 100;
@@ -127,15 +119,14 @@ public class SimulationTest extends TestCase {
 		simulation._rate = 0.01;
 		simulation._fv = 139931.10;
 		try {
-			assertEquals(129600.00, simulation.getSavingsAccumulated());
+			assertEquals(129600.00, simulation.getAccumulatedSavings());
 		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
+            fail("Failed to calculate the accumulated savings");
 		}
 	}
 	
-	@Test
-	public void testGetInterestReceived(){
+
+	public void testGetReceivedInterest(){
 		Simulation simulation = new Simulation();
 		simulation._pv = 120000; 
 		simulation._pmt = 100;
@@ -143,10 +134,9 @@ public class SimulationTest extends TestCase {
 		simulation._rate = 0.01;
 		simulation._fv = 139931.10;
 		try {
-			assertEquals(10331.10, simulation.getInterestReceived());
+			assertEquals(10331.10, simulation.getReceivedInterest());
 		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
+            fail("Failed to calculate the  received interest ");
 		}
 	}
 
